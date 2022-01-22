@@ -71,8 +71,10 @@ public class UserAnswerRepository {
 
                 List<QuestionForUser> questionForUserList;
                 questionForUserList = QuessionForUserRepository.makeQuession(subject_id, quesDif_id);
-                System.out.println(questionForUserList.size() + " = Total test for yu");
-
+                int size=questionForUserList.size();
+                if(size<test_amount){
+                    System.out.println("Sorry we have only "+size+" test for you");
+                }
                 List<Integer> idNextQuestion = new ArrayList<>();
                 for (QuestionForUser questionForUser : questionForUserList) {
                     idNextQuestion.add(questionForUser.getQuestion_id());
@@ -130,7 +132,8 @@ public class UserAnswerRepository {
 
                     String answerId;
                     do {
-                        System.out.println("Enter answer one (A,B,C,D)");
+                        System.out.println("Enter answer one (a,b,c,d)");
+                        System.out.print("Answer: ");
                         answerId = InPutScanner.SCANNERSTR.nextLine();
                         answerId = answerId.toLowerCase();
                     } while (!"abcd".contains(answerId));
@@ -150,6 +153,8 @@ public class UserAnswerRepository {
                 //tugatish
                 String finish_say = TestRepository.stopProcess(user.getId(), test_id);
                 System.out.println(finish_say);
+                System.out.println("------------------------------------------------");
+                showResultTest(test_id);
 
             } else {
                 System.out.println("No question difficulty yet");
@@ -159,5 +164,44 @@ public class UserAnswerRepository {
         } else {
             System.out.println("No subject yet");
         }
+    }
+
+    private static void showResultTest(int test_id) {
+        String wasteTime="";
+        int totalQuession=0;
+        int rate=0;
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("select age(end_time,start_time)from test where id=?");
+            preparedStatement.setInt(1,test_id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                wasteTime = resultSet.getString(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        String[] time = wasteTime.split(":");
+        String hh=time[0];
+        String mm=time[1];
+        String ss=time[2];
+        System.out.println("* Total time spent: "+hh+" hour "+mm+" minute "+ss+" second");
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("select count(rate),sum(rate) from user_answer where test_id=?");
+            preparedStatement.setInt(1,test_id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                totalQuession = resultSet.getInt(1);
+                rate = resultSet.getInt(2);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("* Total question: "+totalQuession);
+        System.out.println("* Right answer: "+rate);
+        System.out.println("* Wrong answer: "+(totalQuession-rate));
+        double rateInProcent=((double) rate/totalQuession)*100;
+        System.out.println("* Level of mastery:"+String.format("%.2f",rateInProcent)+" %");
+        System.out.println("! Your test Id: "+test_id);
+
     }
 }
