@@ -114,4 +114,23 @@ public class QuestionDifficultyrepository {
         refresh();
         return response;
     }
+
+    public static Response update_question_difficulty(int quession_id, int edit_new_dif) {
+        Response response=new Response();
+        try {
+            CallableStatement callableStatement = connection.prepareCall("{call update_quession_diffuculty(?,?,?,?)}");
+            callableStatement.setInt(1,quession_id);
+            callableStatement.setInt(2,edit_new_dif);
+            callableStatement.registerOutParameter(3,Types.BOOLEAN);
+            callableStatement.registerOutParameter(4,Types.VARCHAR);
+            callableStatement.execute();
+            response.setSuccess(callableStatement.getBoolean(3));
+            response.setMessage(callableStatement.getString(4));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        refresh();
+        return response;
+    }
 }

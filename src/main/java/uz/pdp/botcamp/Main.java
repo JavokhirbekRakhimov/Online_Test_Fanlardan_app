@@ -64,6 +64,10 @@ public class Main {
                                                  Response response=QuestionDifficultyrepository.changDifficulty();
                                                     System.out.println(response.getMessage());
                                                 }
+                                                case 3->{
+                                                    Response response=QuestionRepository.changeQuestion();
+                                                    System.out.println(response.getMessage());
+                                                }
                                                 case 0-> rec=false;
                                             }
                                         }
