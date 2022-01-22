@@ -150,7 +150,7 @@ static Connection connection= DbConfig.getConnection();
     private static Response updateSubject(int subjectId, String newSubjectName) {
         Response response=new Response();
         try {
-            CallableStatement callableStatement = connection.prepareCall("call update_subject(?,?,?,?)");
+            CallableStatement callableStatement = connection.prepareCall("{call update_subject(?,?,?,?)}");
             callableStatement.setInt(1,subjectId);
             callableStatement.setString(2,newSubjectName);
             callableStatement.registerOutParameter(3,Types.BOOLEAN);
@@ -162,6 +162,7 @@ static Connection connection= DbConfig.getConnection();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        refreshSubject();
         return response;
     }
 

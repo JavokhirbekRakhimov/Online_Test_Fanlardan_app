@@ -21,9 +21,9 @@ public class Main {
             option = InPutScanner.SCANNERNUM.nextInt();
             switch (option) {
                 case 1 -> {
-                    System.out.println("Enter phone number");
+                    System.out.print("Enter phone number: ");
                     String phone = InPutScanner.SCANNERSTR.nextLine();
-                    System.out.println("Enter your password");
+                    System.out.print("Enter your password: ");
                     String password = InPutScanner.SCANNERSTR.nextLine();
                     User user = UserRepository.hasUser(phone, password);
 
@@ -36,7 +36,6 @@ public class Main {
                                 option = InPutScanner.SCANNERNUM.nextInt();
                                 switch (option) {
                                     case 1 -> {
-                                        //Create
                                         while (rec) {
                                             adminMenu();
                                             option = InPutScanner.SCANNERNUM.nextInt();
@@ -53,11 +52,22 @@ public class Main {
                                         rec = true;
                                     }
                                     case 2 -> {
-                                        updateMenu();
-                                        option=InPutScanner.SCANNERNUM.nextInt();
-                                        switch (option){
-                                            case 1-> SubjectRepository.changeSubject();
+                                        while (rec) {
+                                            updateMenu();
+                                            option = InPutScanner.SCANNERNUM.nextInt();
+                                            switch (option) {
+                                                case 1 -> {
+                                                    Response response = SubjectRepository.changeSubject();
+                                                    System.out.println(response.getMessage());
+                                                }
+                                                case 2->{
+                                                 Response response=QuestionDifficultyrepository.changDifficulty();
+                                                    System.out.println(response.getMessage());
+                                                }
+                                                case 0-> rec=false;
+                                            }
                                         }
+                                        rec=true;
                                     }
                                     case 3 -> {
                                         //Delete
@@ -72,16 +82,13 @@ public class Main {
                                 userMenu();
                                 option = InPutScanner.SCANNERNUM.nextInt();
                                 switch (option) {
-                                    case 1 -> {
+                                    case 1 -> UserAnswerRepository.startProcess(user);
 
-                                        // testni boshlash
-                                        UserAnswerRepository.startProcess(user);
-
-                                    }
                                     case 2 -> {
                                         //history
 
                                     }
+                                    case 0->rec=false;
                                 }
                             }
                             rec = true;
@@ -91,12 +98,14 @@ public class Main {
                 }
                 case 2 -> UserRepository.registerNewUser();
                 case 0 -> rec = false;
+                default -> System.out.println("Wrong number");
             }
         }
 
     }
 
     private static void updateMenu() {
+        System.out.println("________________________________________");
         System.out.println("1.Update subject");
         System.out.println("2.Update question difficulty");
         System.out.println("3.Update question ");

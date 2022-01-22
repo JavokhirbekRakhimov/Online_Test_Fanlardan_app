@@ -67,4 +67,51 @@ public class QuestionDifficultyrepository {
             System.out.println(response.getMessage());
         }
     }
+
+    public static Response changDifficulty() {
+        Response response=new Response();
+        List<Integer>index=new ArrayList<>();
+        int dif_id;
+        if (QuestionDifficultyrepository.questionDifficulties.size()>0) {
+            System.out.println("All question difficulty");
+            for (QuestionDifficulty questionDifficulty : QuestionDifficultyrepository.questionDifficulties) {
+                System.out.println("Id=> "+questionDifficulty.getId() + ". " + questionDifficulty.getDifficulty());
+                index.add(questionDifficulty.getId());
+            }
+        }else {
+            System.out.println("No question difficulty yet");
+        }
+        System.out.println("* Write 0 if you wat back");
+        System.out.println("Enter new question difficulty name");
+        dif_id=InPutScanner.SCANNERNUM.nextInt();
+        if(dif_id!=0){
+            if(index.contains(dif_id)) {
+                System.out.print("Enter new name: ");
+                String newName = InPutScanner.SCANNERSTR.nextLine();
+                return updateNewDif(dif_id, newName);
+            }else {
+                System.out.println("Wrong Id");
+            }
+        }
+
+        return response;
+    }
+
+    private static Response updateNewDif(int dif_id, String newName) {
+        Response response=new Response();
+        try {
+            CallableStatement callableStatement = connection.prepareCall("{call update_difficulty(?,?,?,?)}");
+            callableStatement.setInt(1,dif_id);
+            callableStatement.setString(2,newName);
+            callableStatement.registerOutParameter(3,Types.BOOLEAN);
+            callableStatement.registerOutParameter(4,Types.VARCHAR);
+            callableStatement.execute();
+            response.setSuccess(callableStatement.getBoolean(3));
+            response.setMessage(callableStatement.getString(4));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        refresh();
+        return response;
+    }
 }
