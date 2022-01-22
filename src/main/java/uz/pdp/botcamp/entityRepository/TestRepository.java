@@ -8,16 +8,16 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 public class TestRepository {
-    static Connection connection= DbConfig.getConnection();
+    static Connection connection = DbConfig.getConnection();
 
     public static int addTest(int id) {
-        int result=-1;
+        int result = -1;
         try {
             CallableStatement callableStatement = connection.prepareCall("{call addtest(?,?)}");
-            callableStatement.setInt(1,id);
+            callableStatement.setInt(1, id);
             callableStatement.registerOutParameter(2, Types.INTEGER);
             callableStatement.execute();
-            result=callableStatement.getInt(2);
+            result = callableStatement.getInt(2);
             return result;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -26,14 +26,14 @@ public class TestRepository {
     }
 
     public static String stopProcess(int userid, int test_id) {
-       String resultr="Something wrong";
+        String resultr = "Something wrong";
         try {
             CallableStatement callableStatement = connection.prepareCall("{call stoptest(?,?,?)}");
-            callableStatement.setInt(1,userid);
-            callableStatement.setInt(2,test_id);
-            callableStatement.registerOutParameter(3,Types.VARCHAR);
+            callableStatement.setInt(1, userid);
+            callableStatement.setInt(2, test_id);
+            callableStatement.registerOutParameter(3, Types.VARCHAR);
             callableStatement.execute();
-            resultr=callableStatement.getString(3);
+            resultr = callableStatement.getString(3);
         } catch (SQLException e) {
             e.printStackTrace();
         }

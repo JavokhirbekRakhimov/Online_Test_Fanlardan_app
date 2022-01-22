@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         int option;
         UserRepository.refreshUser();
-        SubjectRepository.refreshSubject();
+        SubjectRepository.refresh();
         QuestionDifficultyrepository.refresh();
         QuestionRepository.refresh();
         AnswerRepository.refresh();
@@ -60,21 +60,41 @@ public class Main {
                                                     Response response = SubjectRepository.changeSubject();
                                                     System.out.println(response.getMessage());
                                                 }
-                                                case 2->{
-                                                 Response response=QuestionDifficultyrepository.changDifficulty();
+                                                case 2 -> {
+                                                    Response response = QuestionDifficultyrepository.changDifficulty();
                                                     System.out.println(response.getMessage());
                                                 }
-                                                case 3->{
-                                                    Response response=QuestionRepository.changeQuestion();
+                                                case 3 -> {
+                                                    Response response = QuestionRepository.changeQuestion();
                                                     System.out.println(response.getMessage());
                                                 }
-                                                case 0-> rec=false;
+                                                case 0 -> rec = false;
                                             }
                                         }
-                                        rec=true;
+                                        rec = true;
                                     }
                                     case 3 -> {
-                                        //Delete
+                                        while (rec) {
+                                            deleteMenu();
+                                            option = InPutScanner.SCANNERNUM.nextInt();
+                                            switch (option) {
+                                                case 1 -> {
+                                                    Response response = SubjectRepository.deleteSubject();
+                                                    System.out.println(response.getMessage());
+                                                }
+                                                case 2 -> {
+                                                    Response response = QuestionDifficultyrepository.deleteDifficulty();
+                                                    System.out.println(response.getMessage());
+                                                }
+                                                case 3 -> {
+                                                    Response response = QuestionRepository.deleteQuestion();
+                                                    System.out.println(response.getMessage());
+                                                }
+                                                case 0 -> rec = false;
+                                            }
+
+                                        }
+                                        rec = true;
                                     }
                                     case 0 -> rec = false;
                                 }
@@ -92,7 +112,7 @@ public class Main {
                                         //history
 
                                     }
-                                    case 0->rec=false;
+                                    case 0 -> rec = false;
                                 }
                             }
                             rec = true;
@@ -108,13 +128,21 @@ public class Main {
 
     }
 
+    private static void deleteMenu() {
+        System.out.println("1.Delete subject");
+        System.out.println("2.Delete question difficulty");
+        System.out.println("3.Delete question");
+        System.out.println("0.Exit");
+        System.out.print("Enter number: ");
+    }
+
     private static void updateMenu() {
         System.out.println("________________________________________");
         System.out.println("1.Update subject");
         System.out.println("2.Update question difficulty");
         System.out.println("3.Update question ");
         System.out.println("0.Exit ");
-        System.out.print("Enter number ");
+        System.out.print("Enter number: ");
     }
 
     private static void userMenu() {

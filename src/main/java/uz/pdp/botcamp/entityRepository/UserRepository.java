@@ -9,47 +9,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserRepository {
-   static Connection connection= DbConfig.getConnection();
-    public static List<User>users=new ArrayList<>();
+    static Connection connection = DbConfig.getConnection();
+    public static List<User> users = new ArrayList<>();
 
-   public static void refreshUser(){
-       users.clear();
-       try {
-           Statement statement = connection.createStatement();
-           ResultSet resultSet = statement.executeQuery("select *from users");
-           while (resultSet.next()){
-               User user=new User();
-               user.setId(resultSet.getInt(1));
-               user.setFirst_name(resultSet.getString(2));
-               user.setLast_name(resultSet.getString(3));
-               user.setPhone(resultSet.getString(4));
-               user.setPassword(resultSet.getString(5));
-               user.setActive(resultSet.getBoolean(6));
-               user.setRole(resultSet.getString(8));
-               users.add(user);
-           }
-       } catch (SQLException e) {
-           e.printStackTrace();
-       }
-   }
+    public static void refreshUser() {
+        users.clear();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("select *from users");
+            while (resultSet.next()) {
+                User user = new User();
+                user.setId(resultSet.getInt(1));
+                user.setFirst_name(resultSet.getString(2));
+                user.setLast_name(resultSet.getString(3));
+                user.setPhone(resultSet.getString(4));
+                user.setPassword(resultSet.getString(5));
+                user.setActive(resultSet.getBoolean(6));
+                user.setRole(resultSet.getString(8));
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static User hasUser(String phone, String password) {
-       User Currentuser=null;
-       String patternPassword="";
+        User Currentuser = null;
+        String patternPassword = "";
         for (User user : users) {
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement("select concat('16',md5(?),'75')");
-                preparedStatement.setString(1,password);
+                preparedStatement.setString(1, password);
                 ResultSet resultSet = preparedStatement.executeQuery();
-                while (resultSet.next()){
-                    patternPassword=resultSet.getString(1);
+                while (resultSet.next()) {
+                    patternPassword = resultSet.getString(1);
                 }
 
             } catch (SQLException e) {
                 e.printStackTrace();
             }
 
-            if(user.getPhone().equals(phone) && user.getPassword().equals(patternPassword)) {
+            if (user.getPhone().equals(phone) && user.getPassword().equals(patternPassword)) {
                 return user;
             }
         }
@@ -58,7 +58,7 @@ public class UserRepository {
 
     public static boolean hasPhone(String phone) {
         for (User user : users) {
-            if(user.getPhone().equals(phone))
+            if (user.getPhone().equals(phone))
                 return true;
         }
         return false;
@@ -67,11 +67,11 @@ public class UserRepository {
     public static boolean registerUser(String i_first_name, String i_last_name, String i_phone, String i_password) {
         try {
             CallableStatement callableStatement = connection.prepareCall("{call registeruser(?,?,?,?,?)}");
-            callableStatement.setString(1,i_first_name);
-            callableStatement.setString(2,i_last_name);
-            callableStatement.setString(3,i_phone);
-            callableStatement.setString(4,i_password);
-            callableStatement.registerOutParameter(5,Types.BOOLEAN);
+            callableStatement.setString(1, i_first_name);
+            callableStatement.setString(2, i_last_name);
+            callableStatement.setString(3, i_phone);
+            callableStatement.setString(4, i_password);
+            callableStatement.registerOutParameter(5, Types.BOOLEAN);
             callableStatement.execute();
             refreshUser();
             return callableStatement.getBoolean(5);
@@ -103,12 +103,12 @@ public class UserRepository {
                 }
             } while (!password.equals(repassword));
 
-            boolean register =registerUser(first_name, last_name, phone, password);
+            boolean register = registerUser(first_name, last_name, phone, password);
             if (register)
                 System.out.println("you are registered");
             else
                 System.out.println("Something wrong");
-        }else {
+        } else {
             System.out.println("This number already exist");
         }
     }

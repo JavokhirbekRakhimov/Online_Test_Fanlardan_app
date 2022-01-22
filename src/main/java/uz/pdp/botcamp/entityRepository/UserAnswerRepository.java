@@ -10,16 +10,17 @@ import java.util.List;
 import java.util.Random;
 
 public class UserAnswerRepository {
-    static Connection connection= DbConfig.getConnection();
+    static Connection connection = DbConfig.getConnection();
+
     public static Response addNewTest(int test_id, int quession_id, String user_answer, String right_answer) {
 
-        Response response=new Response();
+        Response response = new Response();
         try {
             CallableStatement callableStatement = connection.prepareCall("{call add_usertest(?,?,?,?,?,?)}");
-            callableStatement.setInt(1,test_id);
-            callableStatement.setInt(2,quession_id);
-            callableStatement.setString(3,user_answer);
-            callableStatement.setString(4,right_answer);
+            callableStatement.setInt(1, test_id);
+            callableStatement.setInt(2, quession_id);
+            callableStatement.setString(3, user_answer);
+            callableStatement.setString(4, right_answer);
             callableStatement.registerOutParameter(5, Types.BOOLEAN);
             callableStatement.registerOutParameter(6, Types.VARCHAR);
             callableStatement.execute();
