@@ -53,7 +53,11 @@ public class Main {
                                         rec = true;
                                     }
                                     case 2 -> {
-                                        //Update
+                                        updateMenu();
+                                        option=InPutScanner.SCANNERNUM.nextInt();
+                                        switch (option){
+                                            case 1-> SubjectRepository.changeSubject();
+                                        }
                                     }
                                     case 3 -> {
                                         //Delete
@@ -90,6 +94,14 @@ public class Main {
             }
         }
 
+    }
+
+    private static void updateMenu() {
+        System.out.println("1.Update subject");
+        System.out.println("2.Update question difficulty");
+        System.out.println("3.Update question ");
+        System.out.println("0.Exit ");
+        System.out.print("Enter number ");
     }
 
     private static void userMenu() {

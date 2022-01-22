@@ -118,4 +118,51 @@ static Connection connection= DbConfig.getConnection();
             System.out.println(response.getMessage());
         }
     }
+
+    public static Response changeSubject() {
+        Response response=new Response();
+        response.setMessage("Something wrong");
+        List<Integer> index=new ArrayList<>();
+        if (SubjectRepository.subjects.size()>0) {
+            System.out.println("All subjects");
+            for (Subject subject : SubjectRepository.subjects) {
+                System.out.println("Id => "+subject.getId() + ". " + subject.getName());
+                index.add(subject.getId());
+            }
+        }else {
+            System.out.println("No subject yet");
+        }
+        System.out.println("* Write 0 if you wat back");
+        System.out.print("Enter Subject Id:");
+        int subjectId=InPutScanner.SCANNERNUM.nextInt();
+        if(subjectId!=0){
+           if(index.contains(subjectId)){
+               System.out.print("Enter new subject name : ");
+               String newSubjectName=InPutScanner.SCANNERSTR.nextLine();
+               response=updateSubject(subjectId,newSubjectName);
+           }else {
+               System.out.println("Wrong Id yu entered");
+           }
+        }
+        return response;
+    }
+
+    private static Response updateSubject(int subjectId, String newSubjectName) {
+        Response response=new Response();
+        try {
+            CallableStatement callableStatement = connection.prepareCall("call update_subject(?,?,?,?)");
+            callableStatement.setInt(1,subjectId);
+            callableStatement.setString(2,newSubjectName);
+            callableStatement.registerOutParameter(3,Types.BOOLEAN);
+            callableStatement.registerOutParameter(4,Types.VARCHAR);
+            callableStatement.execute();
+            response.setSuccess(callableStatement.getBoolean(3));
+            response.setMessage(callableStatement.getString(4));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
 }
