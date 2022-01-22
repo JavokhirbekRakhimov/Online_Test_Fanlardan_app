@@ -18,7 +18,7 @@ static Connection connection= DbConfig.getConnection();
         subjects.clear();
         try {
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select *from subject order by id");
+            ResultSet resultSet = statement.executeQuery("select *from subject where active=true order by id");
             while (resultSet.next()){
                Subject subject=new Subject();
                subject.setId(resultSet.getInt(1));

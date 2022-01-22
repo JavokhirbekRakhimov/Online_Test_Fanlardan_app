@@ -20,7 +20,7 @@ public class AnswerRepository {
 
         try {
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select *from answer order by id");
+            ResultSet resultSet = statement.executeQuery("select *from answer  order by id");
 
             while (resultSet.next()){
                 Answer answer=new Answer();
