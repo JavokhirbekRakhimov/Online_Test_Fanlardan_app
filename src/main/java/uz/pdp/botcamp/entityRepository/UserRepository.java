@@ -14,12 +14,11 @@ import java.util.regex.Pattern;
 public class UserRepository {
     static Connection connection = DbConfig.getConnection();
     public static List<User> users = new ArrayList<>();
-
     public static void refreshUser() {
         users.clear();
         try {
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select *from users");
+            ResultSet resultSet = statement.executeQuery("select *from users order by id");
             while (resultSet.next()) {
                 User user = new User();
                 user.setId(resultSet.getInt(1));
@@ -197,5 +196,124 @@ public class UserRepository {
         }
         refreshUser();
         return response;
+    }
+
+    public static void operatino() {
+        System.out.println("------------------------------------------------");
+        System.out.println("1.Show user");
+        System.out.println("2.User active -> false");
+        System.out.println("3.User active -> true");
+        System.out.println("0.Exit");
+        System.out.print("Enter number: ");
+        int option=InPutScanner.SCANNERNUM.nextInt();
+        switch (option){
+            case 1-> showUser();
+            case 2-> blockUser();
+            case 3->activeUser();
+        }
+
+    }
+
+    private static void activeUser() {
+        List<Integer>index=new ArrayList<>();
+        System.out.println("----------------------------------------------");
+        for (User user : users) {
+            if(!user.isActive()) {
+                index.add(user.getId());
+                System.out.println("* Id : " + user.getId());
+                System.out.println("* Phone: " + user.getPhone());
+                System.out.println("* First name: " + user.getFirst_name());
+                System.out.println("* Last name: " + user.getLast_name());
+                System.out.println("* Active: " + user.isActive());
+                System.out.println("* Password: " + user.getPassword());
+                System.out.println("--------------------------------------------");
+            }
+        }
+        int id;
+        do {
+            System.out.print("Enter user id: ");
+            id = InPutScanner.SCANNERNUM.nextInt();
+            if(!index.contains(id))
+                System.out.println("Wrong id");
+        }while (!index.contains(id));
+
+        Response response=activeUserById(id);
+        System.out.println(response.getMessage());
+    }
+
+    private static Response activeUserById(int id) {
+        Response response=new Response();
+        try {
+            CallableStatement callableStatement = connection.prepareCall("{call active_user(?,?,?)}");
+            callableStatement.setInt(1, id);
+            callableStatement.registerOutParameter(2, Types.BOOLEAN);
+            callableStatement.registerOutParameter(3, Types.VARCHAR);
+            callableStatement.execute();
+            response.setSuccess(callableStatement.getBoolean(2));
+            response.setMessage(callableStatement.getString(3));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        refreshUser();
+        return response;
+    }
+
+    private static void blockUser() {
+        List<Integer>index=new ArrayList<>();
+        System.out.println("----------------------------------------------");
+        for (User user : users) {
+            if(user.isActive()) {
+                index.add(user.getId());
+                System.out.println("* Id : " + user.getId());
+                System.out.println("* Phone: " + user.getPhone());
+                System.out.println("* First name: " + user.getFirst_name());
+                System.out.println("* Last name: " + user.getLast_name());
+                System.out.println("* Active: " + user.isActive());
+                System.out.println("* Password: " + user.getPassword());
+                System.out.println("--------------------------------------------");
+            }
+        }
+        int id;
+        do {
+            System.out.print("Enter user id: ");
+            id = InPutScanner.SCANNERNUM.nextInt();
+            if(!index.contains(id))
+                System.out.println("Wrong id");
+        }while (!index.contains(id));
+
+        Response response=deleteUser(id);
+        System.out.println(response.getMessage());
+    }
+
+    private static Response deleteUser(int id) {
+        Response response=new Response();
+        try {
+            CallableStatement callableStatement = connection.prepareCall("{call delete_user(?,?,?)}");
+            callableStatement.setInt(1, id);
+            callableStatement.registerOutParameter(2, Types.BOOLEAN);
+            callableStatement.registerOutParameter(3, Types.VARCHAR);
+            callableStatement.execute();
+            response.setSuccess(callableStatement.getBoolean(2));
+            response.setMessage(callableStatement.getString(3));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        refreshUser();
+        return response;
+    }
+
+    private static void showUser() {
+        System.out.println("----------------------------------------------");
+        for (User user : users) {
+            System.out.println("* Id : "+user.getId());
+            System.out.println("* Phone: "+user.getPhone());
+            System.out.println("* First name: "+user.getFirst_name());
+            System.out.println("* Last name: "+user.getLast_name());
+            System.out.println("* Active: "+user.isActive());
+            System.out.println("* Password: "+user.getPassword());
+            System.out.println("--------------------------------------------");
+        }
     }
 }
