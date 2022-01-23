@@ -12,6 +12,7 @@ import java.util.List;
 
 public class SubjectRepository {
     public static List<Subject> subjects = new ArrayList<>();
+    public static List<Subject> deleteSubjects = new ArrayList<>();
     static Connection connection = DbConfig.getConnection();
 
     public static void refresh() {
@@ -25,6 +26,22 @@ public class SubjectRepository {
                 subject.setName(resultSet.getString(2));
                 subject.setActive(resultSet.getBoolean(3));
                 subjects.add(subject);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void refreshDelete() {
+        deleteSubjects.clear();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("select *from subject where active=false order by id");
+            while (resultSet.next()) {
+                Subject subject = new Subject();
+                subject.setId(resultSet.getInt(1));
+                subject.setName(resultSet.getString(2));
+                subject.setActive(resultSet.getBoolean(3));
+                deleteSubjects.add(subject);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -47,58 +64,6 @@ public class SubjectRepository {
             e.printStackTrace();
         }
         return response;
-    }
-
-    public static void createSubject() {
-        int subject_id;
-        int quesDif_id;
-        String content;
-        String right_answer;
-        String wrong_answer_1;
-        String wrong_answer_2;
-        String wrong_answer_3;
-        if (SubjectRepository.subjects.size() > 0) {
-            System.out.println("All subjects");
-            for (Subject subject : SubjectRepository.subjects) {
-                System.out.println(subject.getId() + ". " + subject.getName());
-            }
-
-            System.out.print("Enter subject number:");
-            subject_id = InPutScanner.SCANNERNUM.nextInt();
-
-            if (QuestionDifficultyrepository.questionDifficulties.size() > 0) {
-                System.out.println("All question difficulty");
-                for (QuestionDifficulty questionDifficulty : QuestionDifficultyrepository.questionDifficulties) {
-                    System.out.println(questionDifficulty.getId() + ". " + questionDifficulty.getDifficulty());
-                }
-                System.out.print("Enter difficulty number:");
-                quesDif_id = InPutScanner.SCANNERNUM.nextInt();
-
-                System.out.println("Enter question:");
-                content = InPutScanner.SCANNERSTR.nextLine();
-                System.out.println("Enter right answer first:");
-                right_answer = InPutScanner.SCANNERSTR.nextLine();
-                System.out.println("Enter wrong answer 1: ");
-                wrong_answer_1 = InPutScanner.SCANNERSTR.nextLine();
-
-                System.out.println("Enter wrong answer 2: ");
-                wrong_answer_2 = InPutScanner.SCANNERSTR.nextLine();
-
-                System.out.println("Enter wrong answer 3: ");
-                wrong_answer_3 = InPutScanner.SCANNERSTR.nextLine();
-
-                Response response = QuestionRepository.addQustionAndAnswer(content, subject_id, quesDif_id,
-                        right_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3);
-                System.out.println(response.getMessage());
-
-            } else {
-                System.out.println("No question difficulty yet");
-            }
-
-
-        } else {
-            System.out.println("No subject yet");
-        }
     }
 
     public static void addNewSubject() {
@@ -167,6 +132,7 @@ public class SubjectRepository {
     }
 
     public static Response deleteSubject() {
+        System.out.println("-------------------------------------------------");
         Response response = new Response();
         List<Integer> index = new ArrayList<>();
         if (SubjectRepository.subjects.size() > 0) {
@@ -181,6 +147,7 @@ public class SubjectRepository {
         System.out.println("* Write 0 if you wat back");
         System.out.print("Enter Subject Id:");
         int subjectId = InPutScanner.SCANNERNUM.nextInt();
+        System.out.println("-------------------------------------------------");
         if (subjectId != 0) {
             if (index.contains(subjectId)) {
                 response = deleteSubjectById(subjectId);
@@ -205,6 +172,53 @@ public class SubjectRepository {
             e.printStackTrace();
         }
         refresh();
+        return response;
+    }
+
+    public static void rollbackSubject() {
+        System.out.println("-------------------------------------------------");
+        Response response = new Response();
+        List<Integer> index = new ArrayList<>();
+        if (SubjectRepository.deleteSubjects.size() > 0) {
+            System.out.println("All delete subjects");
+            for (Subject subject : SubjectRepository.deleteSubjects) {
+                System.out.println("Id => " + subject.getId() + ". " + subject.getName());
+                index.add(subject.getId());
+            }
+        } else {
+            System.out.println("No subject yet");
+        }
+        System.out.println("* Write 0 if you wat back");
+        System.out.print("Enter Subject Id:");
+        int subjectId = InPutScanner.SCANNERNUM.nextInt();
+        System.out.println("-------------------------------------------------");
+        if (subjectId != 0) {
+            if (index.contains(subjectId)) {
+                response = rollbackSubjectById(subjectId);
+            } else {
+                System.out.println("Wrong Id yu entered");
+            }
+        }
+        System.out.println(response.getMessage());
+
+    }
+
+    private static Response rollbackSubjectById(int subjectId) {
+        Response response=new Response();
+
+        try {
+            CallableStatement callableStatement = connection.prepareCall("{call rollback_subject(?,?,?)}");
+            callableStatement.setInt(1, subjectId);
+            callableStatement.registerOutParameter(2, Types.BOOLEAN);
+            callableStatement.registerOutParameter(3, Types.VARCHAR);
+            callableStatement.execute();
+            response.setSuccess(callableStatement.getBoolean(2));
+            response.setMessage(callableStatement.getString(3));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        refresh();
+        refreshDelete();
         return response;
     }
 }

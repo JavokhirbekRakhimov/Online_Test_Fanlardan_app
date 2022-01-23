@@ -11,6 +11,7 @@ import java.util.List;
 public class QuestionRepository {
     static Connection connection = DbConfig.getConnection();
     public static List<Question> questions = new ArrayList<>();
+    public static List<Question> deleteQuestions = new ArrayList<>();
 
 
     public static void refresh() {
@@ -27,6 +28,25 @@ public class QuestionRepository {
                 question.setAnswer_id(resultSet.getInt(5));
                 question.setActive(resultSet.getBoolean(6));
                 questions.add(question);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void deleteRefresh() {
+        deleteQuestions.clear();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("select *from question where active = true order by id");
+            while (resultSet.next()) {
+                Question question = new Question();
+                question.setId(resultSet.getInt(1));
+                question.setContent(resultSet.getString(2));
+                question.setSubject_id(resultSet.getInt(3));
+                question.setDifficulty_id(resultSet.getInt(4));
+                question.setAnswer_id(resultSet.getInt(5));
+                question.setActive(resultSet.getBoolean(6));
+                deleteQuestions.add(question);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -475,5 +495,143 @@ public class QuestionRepository {
         }
         refresh();
         return response;
+    }
+
+    public static void rollbackQuestion() {
+        Response response = new Response();
+        int quession_id;
+        int subject_id;
+        int quesDif_id;
+        if (SubjectRepository.subjects.size() > 0) {
+            System.out.println("-----------------------------------------------------------------");
+            System.out.println("All subjects");
+            for (Subject subject : SubjectRepository.subjects) {
+                System.out.println(subject.getId() + ". " + subject.getName());
+            }
+            System.out.print("Enter subject number:");
+            subject_id = InPutScanner.SCANNERNUM.nextInt();
+            System.out.println("-----------------------------------------------------------------");
+
+
+            if (QuestionDifficultyrepository.questionDifficulties.size() > 0) {
+                System.out.println("All question difficulty");
+                for (QuestionDifficulty questionDifficulty : QuestionDifficultyrepository.questionDifficulties) {
+                    System.out.println(questionDifficulty.getId() + ". " + questionDifficulty.getDifficulty());
+                }
+                quesDif_id = InPutScanner.SCANNERNUM.nextInt();
+                System.out.println("-----------------------------------------------------------------");
+
+                List<QuestionForUser> questionForUserList;
+                questionForUserList = QuessionForUserRepository.makeQuession(subject_id, quesDif_id);
+
+                List<Integer> idNextQuestion = new ArrayList<>();
+                System.out.println("-----------------------------------------------------------------");
+                for (QuestionForUser questionForUser : questionForUserList) {
+                    System.out.println("* Id |=> " + questionForUser.getQuestion_id());
+                    System.out.println("* Question:       |=> " + questionForUser.getQuestion());
+                    System.out.println("* Right answer:   |=> " + questionForUser.getRight_answer());
+                    System.out.println("* Wrong answer 1: |=> " + questionForUser.getWrong_answer_1());
+                    System.out.println("* Wrong answer 2: |=> " + questionForUser.getWrong_answer_2());
+                    System.out.println("* Wrong answer 3: |=> " + questionForUser.getWrong_answer_3());
+                    System.out.println("-----------------------------------------------------------------");
+                    idNextQuestion.add(questionForUser.getQuestion_id());
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                do {
+                    System.out.println("Enter 0 if you back");
+                    System.out.print("Enter Id: ");
+                    quession_id = InPutScanner.SCANNERNUM.nextInt();
+                } while (!idNextQuestion.contains(quession_id));
+                System.out.println("-----------------------------------------------------------------");
+                int option = InPutScanner.SCANNERNUM.nextInt();
+                if (option > 0) {
+                    response = rollbackQuestionById(quession_id);
+                }
+
+            } else {
+                System.out.println("No question difficulty yet");
+            }
+
+
+        } else {
+            System.out.println("No subject yet");
+        }
+
+        System.out.println(response.getMessage());
+    }
+
+    private static Response rollbackQuestionById(int quession_id) {
+        Response response = new Response();
+        try {
+            CallableStatement callableStatement = connection.prepareCall("{call rollback_question(?,?,?)}");
+            callableStatement.setInt(1, quession_id);
+            callableStatement.registerOutParameter(2, Types.BOOLEAN);
+            callableStatement.registerOutParameter(3, Types.VARCHAR);
+            callableStatement.execute();
+            response.setSuccess(callableStatement.getBoolean(2));
+            response.setMessage(callableStatement.getString(3));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        refresh();
+        deleteRefresh();
+        return response;
+    }
+
+    public static void addQuestion() {
+        int subject_id;
+        int quesDif_id;
+        String content;
+        String right_answer;
+        String wrong_answer_1;
+        String wrong_answer_2;
+        String wrong_answer_3;
+        if (SubjectRepository.subjects.size() > 0) {
+            System.out.println("All subjects");
+            for (Subject subject : SubjectRepository.subjects) {
+                System.out.println(subject.getId() + ". " + subject.getName());
+            }
+
+            System.out.print("Enter subject number:");
+            subject_id = InPutScanner.SCANNERNUM.nextInt();
+
+            if (QuestionDifficultyrepository.questionDifficulties.size() > 0) {
+                System.out.println("All question difficulty");
+                for (QuestionDifficulty questionDifficulty : QuestionDifficultyrepository.questionDifficulties) {
+                    System.out.println(questionDifficulty.getId() + ". " + questionDifficulty.getDifficulty());
+                }
+                System.out.print("Enter difficulty number:");
+                quesDif_id = InPutScanner.SCANNERNUM.nextInt();
+
+                System.out.println("Enter question:");
+                content = InPutScanner.SCANNERSTR.nextLine();
+                System.out.println("Enter right answer first:");
+                right_answer = InPutScanner.SCANNERSTR.nextLine();
+                System.out.println("Enter wrong answer 1: ");
+                wrong_answer_1 = InPutScanner.SCANNERSTR.nextLine();
+
+                System.out.println("Enter wrong answer 2: ");
+                wrong_answer_2 = InPutScanner.SCANNERSTR.nextLine();
+
+                System.out.println("Enter wrong answer 3: ");
+                wrong_answer_3 = InPutScanner.SCANNERSTR.nextLine();
+
+                Response response = QuestionRepository.addQustionAndAnswer(content, subject_id, quesDif_id,
+                        right_answer, wrong_answer_1, wrong_answer_2, wrong_answer_3);
+                System.out.println(response.getMessage());
+
+            } else {
+                System.out.println("No question difficulty yet");
+            }
+
+
+        } else {
+            System.out.println("No subject yet");
+        }
     }
 }

@@ -29,10 +29,16 @@ public class Main {
 
                     if (Objects.isNull(user)) {
                         System.out.println("Phone number or password wrong");
+                        System.out.println("1.I can't remember my code ");
+                        System.out.println("0.Exit ");
+                        option=InPutScanner.SCANNERNUM.nextInt();
+                        if(option==1){
+                            UserRepository.recoverCode(phone);
+                        }
                     } else {
                         if (user.getRole().equals("Admin")) {
                             while (rec) {
-                                dmlPosition();
+                                crudPosition();
                                 option = InPutScanner.SCANNERNUM.nextInt();
                                 switch (option) {
                                     case 1 -> {
@@ -44,7 +50,7 @@ public class Main {
 
                                                 case 2 -> QuestionDifficultyrepository.createDifficulty();
 
-                                                case 3 -> SubjectRepository.createSubject();
+                                                case 3 -> QuestionRepository.addQuestion();
 
                                                 case 0 -> rec = false;
                                             }
@@ -96,6 +102,7 @@ public class Main {
                                         }
                                         rec = true;
                                     }
+                                    case 4->SupportForMain.Rollback();
                                     case 0 -> rec = false;
                                 }
                             }
@@ -161,12 +168,13 @@ public class Main {
         System.out.print("Enter number: ");
     }
 
-    private static void dmlPosition() {
+    private static void crudPosition() {
         System.out.println("________________________________________");
         System.out.println("1.Create");
         System.out.println("2.Update");
         System.out.println("3.Delete");
-        System.out.println("4.User operation");
+        System.out.println("4.Roll back delete things");
+        System.out.println("5.User operation");
         System.out.println("0.Exit");
         System.out.print("Enter number: ");
     }

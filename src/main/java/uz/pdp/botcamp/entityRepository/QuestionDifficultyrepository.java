@@ -12,6 +12,7 @@ import java.util.List;
 public class QuestionDifficultyrepository {
     static Connection connection = DbConfig.getConnection();
     public static List<QuestionDifficulty> questionDifficulties = new ArrayList<>();
+    public static List<QuestionDifficulty> deleteQuestionDifficulties = new ArrayList<>();
 
     public static void refresh() {
         questionDifficulties.clear();
@@ -30,7 +31,23 @@ public class QuestionDifficultyrepository {
         }
 
     }
+    public static void deleteRefresh() {
+        deleteQuestionDifficulties.clear();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("select *from question_difficulty where active=false order by id");
+            while (resultSet.next()) {
+                QuestionDifficulty questionDif = new QuestionDifficulty();
+                questionDif.setId(resultSet.getInt(1));
+                questionDif.setDifficulty(resultSet.getString(2));
+                deleteQuestionDifficulties.add(questionDif);
+            }
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
     public static Response addDificulty(String difficulty) {
         Response response = new Response();
         try {
@@ -138,6 +155,7 @@ public class QuestionDifficultyrepository {
         Response response = new Response();
         List<Integer> index = new ArrayList<>();
         int dif_id;
+        System.out.println("-------------------------------------------------");
         if (QuestionDifficultyrepository.questionDifficulties.size() > 0) {
             System.out.println("All question difficulty");
             for (QuestionDifficulty questionDifficulty : QuestionDifficultyrepository.questionDifficulties) {
@@ -150,6 +168,7 @@ public class QuestionDifficultyrepository {
         System.out.println("* Write 0 if you wat back");
         System.out.println("Enter new question difficulty id");
         dif_id = InPutScanner.SCANNERNUM.nextInt();
+        System.out.println("-------------------------------------------------");
         if (dif_id != 0) {
             if(index.contains(dif_id)) {
                 return deleteDifficultyById(dif_id);
@@ -180,4 +199,52 @@ public class QuestionDifficultyrepository {
         return response;
     }
 
+    public static void rollbackDifficulty() {
+        Response response = new Response();
+        List<Integer> index = new ArrayList<>();
+        int dif_id;
+        System.out.println("-------------------------------------------------");
+        if (deleteQuestionDifficulties.size() > 0) {
+            System.out.println("All question difficulty");
+            for (QuestionDifficulty questionDifficulty : deleteQuestionDifficulties) {
+                System.out.println("Id=> " + questionDifficulty.getId() + ". " + questionDifficulty.getDifficulty());
+                index.add(questionDifficulty.getId());
+            }
+        } else {
+            System.out.println("No question difficulty yet");
+        }
+        System.out.println("* Write 0 if you wat back");
+        System.out.println("Enter new question difficulty id");
+        dif_id = InPutScanner.SCANNERNUM.nextInt();
+        System.out.println("-------------------------------------------------");
+        if (dif_id != 0) {
+            if(index.contains(dif_id)) {
+                response=rollbackDifficultyById(dif_id);
+            }else {
+                System.out.println("Wrong id");
+            }
+
+        }
+
+        System.out.println(response.getMessage());
+    }
+
+    private static Response rollbackDifficultyById(int dif_id) {
+        Response response = new Response();
+        try {
+            CallableStatement callableStatement = connection.prepareCall("{call rollback_difficulty(?,?,?)}");
+            callableStatement.setInt(1, dif_id);
+            callableStatement.registerOutParameter(2, Types.BOOLEAN);
+            callableStatement.registerOutParameter(3, Types.VARCHAR);
+            callableStatement.execute();
+            response.setSuccess(callableStatement.getBoolean(2));
+            response.setMessage(callableStatement.getString(3));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        refresh();
+        deleteRefresh();
+        return response;
+    }
 }

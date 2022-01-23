@@ -1,12 +1,15 @@
 package uz.pdp.botcamp.entityRepository;
 
 import uz.pdp.botcamp.config.DbConfig;
+import uz.pdp.botcamp.entity.Response;
 import uz.pdp.botcamp.entity.User;
 import uz.pdp.botcamp.input.InPutScanner;
+import uz.pdp.botcamp.sms.SmsCode;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class UserRepository {
     static Connection connection = DbConfig.getConnection();
@@ -89,27 +92,110 @@ public class UserRepository {
         String last_name = InPutScanner.SCANNERSTR.nextLine();
         System.out.println("Enter phone number:");
         String phone = InPutScanner.SCANNERSTR.nextLine();
-        boolean hasphone = UserRepository.hasPhone(phone);
-        if (!hasphone) {
-            String password;
-            String repassword;
-            do {
-                System.out.println("Enter your secret password:");
-                password = InPutScanner.SCANNERSTR.nextLine();
-                System.out.println("Enter your secret password again:");
-                repassword = InPutScanner.SCANNERSTR.nextLine();
-                if (!password.equals(repassword)) {
-                    System.out.println("Passwords not mach try again");
-                }
-            } while (!password.equals(repassword));
-
-            boolean register = registerUser(first_name, last_name, phone, password);
-            if (register)
-                System.out.println("you are registered");
-            else
-                System.out.println("Something wrong");
+        boolean rightNumber = Pattern.matches("[+]{1}[0-9]{12}", phone);
+        if (!rightNumber) {
+            System.out.println("Wrong number");
         } else {
-            System.out.println("This number already exist");
+            boolean hasphone = UserRepository.hasPhone(phone);
+            if (!hasphone) {
+
+                System.out.println("We send secret code please enter code");
+                int code = SmsCode.getCode(phone);
+                int limit = 3;
+                System.out.println("Code: " + code);
+                do {
+                System.out.print("Enter code: ");
+                int reciveCode = InPutScanner.SCANNERNUM.nextInt();
+
+                    if (code == reciveCode) {
+                        limit=-2;
+                        String password;
+                        String repassword;
+                        do {
+                            System.out.println("Enter your secret password:");
+                            password = InPutScanner.SCANNERSTR.nextLine();
+                            System.out.println("Enter your secret password again:");
+                            repassword = InPutScanner.SCANNERSTR.nextLine();
+                            if (!password.equals(repassword)) {
+                                System.out.println("Passwords not mach try again");
+                            }
+                        } while (!password.equals(repassword));
+
+                        boolean register = registerUser(first_name, last_name, phone, password);
+                        if (register)
+                            System.out.println("you are registered");
+                        else
+                            System.out.println("Something wrong");
+                    } else {
+                        limit--;
+                        System.out.println("Wrong code you \n Number of remaining attempts " + limit);
+                    }
+                } while (limit > 0);
+                if(limit!=-2) {
+                    System.out.println("Try again letter");
+                }
+            } else {
+                System.out.println("This number already exist");
+            }
         }
+    }
+
+    public static void recoverCode(String phone) {
+        boolean hasphone = UserRepository.hasPhone(phone);
+        if (hasphone) {
+            System.out.println("We send secret code please enter code");
+            int code = SmsCode.getCode(phone);
+            int limit = 3;
+            System.out.println("Code: " + code);
+            do {
+            System.out.print("Enter code: ");
+            int reciveCode = InPutScanner.SCANNERNUM.nextInt();
+
+                if (code == reciveCode) {
+                    limit=-2;
+                    String password;
+                    String repassword;
+                    do {
+                        System.out.println("Enter your secret password:");
+                        password = InPutScanner.SCANNERSTR.nextLine();
+                        System.out.println("Enter your secret password again:");
+                        repassword = InPutScanner.SCANNERSTR.nextLine();
+                        if (!password.equals(repassword)) {
+                            System.out.println("Passwords not mach try again");
+                        }
+                    } while (!password.equals(repassword));
+
+                    Response response = recoverNewCode( phone,password);
+                    System.out.println(response.getMessage());
+                } else {
+                    limit--;
+                    System.out.println("Wrong code you \n Number of remaining attempts " + limit);
+                }
+            } while (limit > 0);
+            if (limit!=-2) {
+                System.out.println("Try again letter");
+            }
+        } else
+            System.out.println("You need to log in ");
+
+    }
+
+    private static Response recoverNewCode(String phone, String password) {
+        Response response=new Response();
+        try {
+            CallableStatement callableStatement = connection.prepareCall("{call updateusercode(?,?,?,?)}");
+            callableStatement.setString(1, phone);
+            callableStatement.setString(2, password);
+            callableStatement.registerOutParameter(3, Types.BOOLEAN);
+            callableStatement.registerOutParameter(4, Types.VARCHAR);
+            callableStatement.execute();
+            response.setSuccess(callableStatement.getBoolean(3));
+            response.setMessage(callableStatement.getString(4));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        refreshUser();
+        return response;
     }
 }
