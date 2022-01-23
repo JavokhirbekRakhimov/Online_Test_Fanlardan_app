@@ -14,6 +14,7 @@ public class Main {
         QuestionDifficultyrepository.refresh();
         QuestionRepository.refresh();
         AnswerRepository.refresh();
+        TestRepository.refresh();
 
         boolean rec = true;
         while (rec) {
@@ -115,10 +116,7 @@ public class Main {
                                 switch (option) {
                                     case 1 -> UserAnswerRepository.startProcess(user);
 
-                                    case 2 -> {
-                                        //history
-
-                                    }
+                                    case 2 -> SupportForMain.showHistory(user.getId());
                                     case 0 -> rec = false;
                                 }
                             }

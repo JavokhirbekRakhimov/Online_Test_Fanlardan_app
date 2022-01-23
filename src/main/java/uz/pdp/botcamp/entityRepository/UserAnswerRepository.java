@@ -166,7 +166,7 @@ public class UserAnswerRepository {
         }
     }
 
-    private static void showResultTest(int test_id) {
+    public static void showResultTest(int test_id) {
         String wasteTime="";
         int totalQuession=0;
         int rate=0;
