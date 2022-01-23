@@ -216,6 +216,7 @@ public class UserRepository {
 
     private static void activeUser() {
         List<Integer>index=new ArrayList<>();
+        index.add(0);
         System.out.println("----------------------------------------------");
         for (User user : users) {
             if(!user.isActive()) {
@@ -224,21 +225,29 @@ public class UserRepository {
                 System.out.println("* Phone: " + user.getPhone());
                 System.out.println("* First name: " + user.getFirst_name());
                 System.out.println("* Last name: " + user.getLast_name());
+                System.out.println("* Role: "+user.getRole());
                 System.out.println("* Active: " + user.isActive());
                 System.out.println("* Password: " + user.getPassword());
                 System.out.println("--------------------------------------------");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
         int id;
         do {
-            System.out.print("Enter user id: ");
+            System.out.println("Enter 0 if you want back");
+            System.out.print("* Enter user id: ");
             id = InPutScanner.SCANNERNUM.nextInt();
             if(!index.contains(id))
                 System.out.println("Wrong id");
         }while (!index.contains(id));
-
-        Response response=activeUserById(id);
-        System.out.println(response.getMessage());
+        if(id!=0) {
+            Response response = activeUserById(id);
+            System.out.println(response.getMessage());
+        }
     }
 
     private static Response activeUserById(int id) {
@@ -261,6 +270,7 @@ public class UserRepository {
 
     private static void blockUser() {
         List<Integer>index=new ArrayList<>();
+        index.add(0);
         System.out.println("----------------------------------------------");
         for (User user : users) {
             if(user.isActive()) {
@@ -276,14 +286,16 @@ public class UserRepository {
         }
         int id;
         do {
-            System.out.print("Enter user id: ");
+            System.out.println("* Enter 0 if you want back");
+            System.out.print("*Enter user id: ");
             id = InPutScanner.SCANNERNUM.nextInt();
             if(!index.contains(id))
                 System.out.println("Wrong id");
         }while (!index.contains(id));
-
-        Response response=deleteUser(id);
-        System.out.println(response.getMessage());
+         if (id!=0) {
+             Response response = deleteUser(id);
+             System.out.println(response.getMessage());
+         }
     }
 
     private static Response deleteUser(int id) {

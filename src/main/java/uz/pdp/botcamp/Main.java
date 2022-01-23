@@ -22,14 +22,14 @@ public class Main {
             option = InPutScanner.SCANNERNUM.nextInt();
             switch (option) {
                 case 1 -> {
-                    System.out.print("Enter phone number: ");
+                    System.out.print("* Enter phone number: ");
                     String phone = InPutScanner.SCANNERSTR.nextLine();
-                    System.out.print("Enter your password: ");
+                    System.out.print("* Enter your password: ");
                     String password = InPutScanner.SCANNERSTR.nextLine();
                     User user = UserRepository.hasUser(phone, password);
 
                     if (Objects.isNull(user)) {
-                        System.out.println("Phone number or password wrong");
+                        System.out.println("😱 Phone number or password wrong");
                         System.out.println("1.I can't remember my code ");
                         System.out.println("0.Exit ");
                         option = InPutScanner.SCANNERNUM.nextInt();
@@ -121,6 +121,7 @@ public class Main {
                                         case 1 -> UserAnswerRepository.startProcess(user);
 
                                         case 2 -> SupportForMain.showHistory(user.getId());
+                                        case 3->TestRepository.removeTestId(user.getId());
                                         case 0 -> rec = false;
                                     }
                                 }
@@ -159,6 +160,7 @@ public class Main {
         System.out.println("________________________________________");
         System.out.println("1.Test ishlash");
         System.out.println("2.History");
+        System.out.println("3.Remove old history");
         System.out.println("0.Exit");
         System.out.print("Enter number: ");
     }

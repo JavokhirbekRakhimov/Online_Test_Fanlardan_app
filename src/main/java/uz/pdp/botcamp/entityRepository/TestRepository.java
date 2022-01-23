@@ -1,10 +1,13 @@
 package uz.pdp.botcamp.entityRepository;
 
 import uz.pdp.botcamp.config.DbConfig;
+import uz.pdp.botcamp.entity.Response;
 import uz.pdp.botcamp.entity.Subject;
 import uz.pdp.botcamp.entity.Test;
+import uz.pdp.botcamp.input.InPutScanner;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,5 +60,47 @@ public class TestRepository {
             e.printStackTrace();
         }
         return resultr;
+    }
+
+    public static void removeTestId(int id) {
+        List<Integer>index=new ArrayList<>();
+        index.add(0);
+        System.out.println("--------------------------------------------------------");
+        for (Test test : TestRepository.tests) {
+            if(test.getUser_id()==id) {
+                System.out.println("| * Id : " + test.getId() + " | Time: "+
+                        new SimpleDateFormat("yyyy.MM.dd  hh:mm:ss").format(test.getStart_time())+"  |");
+                index.add(test.getId());
+            }
+        }
+        int test_id;
+        System.out.println("--------------------------------------------------------");
+        do {
+            System.out.println("Enter 0 if you want back");
+            System.out.print("Enter your test id: ");
+            test_id = InPutScanner.SCANNERNUM.nextInt();
+            System.out.println("----------------------------------------------");
+        }while (!index.contains(test_id));
+         if(test_id!=0) {
+             Response response = deleteTestId(test_id);
+             System.out.println(response.getMessage());
+         }
+    }
+
+    private static Response deleteTestId(int test_id) {
+        Response response=new Response();
+        try {
+            CallableStatement callableStatement = connection.prepareCall("{call delete_test(?,?,?)}");
+            callableStatement.setInt(1, test_id);
+            callableStatement.registerOutParameter(2,Types.BOOLEAN);
+            callableStatement.registerOutParameter(3, Types.VARCHAR);
+            callableStatement.execute();
+            response.setSuccess(callableStatement.getBoolean(2));
+            response.setMessage(callableStatement.getString(3));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        refresh();
+        return response;
     }
 }

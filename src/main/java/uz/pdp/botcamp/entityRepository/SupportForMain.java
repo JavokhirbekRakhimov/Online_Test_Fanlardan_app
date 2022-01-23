@@ -32,6 +32,7 @@ public class SupportForMain {
     public static void showHistory(int user_id) {
 
         List<Integer>index=new ArrayList<>();
+        index.add(0);
         System.out.println("--------------------------------------------------------");
         for (Test test : TestRepository.tests) {
             if(test.getUser_id()==user_id) {
@@ -43,39 +44,40 @@ public class SupportForMain {
         int test_id;
         System.out.println("--------------------------------------------------------");
         do {
-
-            System.out.print("Enter your text id: ");
+            System.out.println("Enter 0 if you want back ");
+            System.out.print("Enter your test id: ");
             test_id = InPutScanner.SCANNERNUM.nextInt();
             System.out.println("----------------------------------------------");
         }while (!index.contains(test_id));
-        List<History> list;
-        list=HistoryRespository.makeList(test_id);
-        int counter=1;
-        if(!list.isEmpty()){
-            for (History history : list) {
-                System.out.println("* Number: "+counter);
-                System.out.println("* Question: "+history.getQuestion());
-                System.out.println("* Your answer: "+history.getYour_answer());
-                System.out.println("* Right answer: "+history.getRight_answer());
-                int rate=history.getRate();
-                if(rate==1)
-                    System.out.println("* Result: "+"  ✅");
-                else
-                    System.out.println("* Result: "+"  ❌");
-                System.out.println("-------------------------------------------------------");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        if(test_id!=0) {
+            List<History> list;
+            list = HistoryRespository.makeList(test_id);
+            int counter = 1;
+            if (!list.isEmpty()) {
+                for (History history : list) {
+                    System.out.println("* Number: " + counter);
+                    System.out.println("* Question: " + history.getQuestion());
+                    System.out.println("* Your answer: " + history.getYour_answer());
+                    System.out.println("* Right answer: " + history.getRight_answer());
+                    int rate = history.getRate();
+                    if (rate == 1)
+                        System.out.println("* Result: " + "  ✅");
+                    else
+                        System.out.println("* Result: " + "  ❌");
+                    System.out.println("-------------------------------------------------------");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    counter++;
                 }
-                counter++;
+            } else {
+                System.out.println("Empty data");
             }
-        }else {
-            System.out.println("Empty data");
+
+            UserAnswerRepository.showResultTest(test_id);
         }
-
-        UserAnswerRepository.showResultTest(test_id);
-
     }
 
 
