@@ -592,33 +592,34 @@ public class QuestionRepository {
         String wrong_answer_2;
         String wrong_answer_3;
         if (SubjectRepository.subjects.size() > 0) {
+            System.out.println("--------------------------------------------");
             System.out.println("All subjects");
             for (Subject subject : SubjectRepository.subjects) {
                 System.out.println(subject.getId() + ". " + subject.getName());
             }
 
-            System.out.print("Enter subject number:");
+            System.out.print("* Enter subject number:");
             subject_id = InPutScanner.SCANNERNUM.nextInt();
-
+            System.out.println("--------------------------------------------");
             if (QuestionDifficultyrepository.questionDifficulties.size() > 0) {
                 System.out.println("All question difficulty");
                 for (QuestionDifficulty questionDifficulty : QuestionDifficultyrepository.questionDifficulties) {
                     System.out.println(questionDifficulty.getId() + ". " + questionDifficulty.getDifficulty());
                 }
-                System.out.print("Enter difficulty number:");
+                System.out.print("* Enter difficulty number:");
                 quesDif_id = InPutScanner.SCANNERNUM.nextInt();
-
-                System.out.println("Enter question:");
+                System.out.println("--------------------------------------------");
+                System.out.println("* Enter question:");
                 content = InPutScanner.SCANNERSTR.nextLine();
-                System.out.println("Enter right answer first:");
+                System.out.println("* Enter right answer first:");
                 right_answer = InPutScanner.SCANNERSTR.nextLine();
-                System.out.println("Enter wrong answer 1: ");
+                System.out.println("* Enter wrong answer 1: ");
                 wrong_answer_1 = InPutScanner.SCANNERSTR.nextLine();
 
-                System.out.println("Enter wrong answer 2: ");
+                System.out.println("* Enter wrong answer 2: ");
                 wrong_answer_2 = InPutScanner.SCANNERSTR.nextLine();
 
-                System.out.println("Enter wrong answer 3: ");
+                System.out.println("* Enter wrong answer 3: ");
                 wrong_answer_3 = InPutScanner.SCANNERSTR.nextLine();
 
                 Response response = QuestionRepository.addQustionAndAnswer(content, subject_id, quesDif_id,

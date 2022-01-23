@@ -199,19 +199,22 @@ public class UserRepository {
     }
 
     public static void operatino() {
-        System.out.println("------------------------------------------------");
-        System.out.println("1.Show user");
-        System.out.println("2.User active -> false");
-        System.out.println("3.User active -> true");
-        System.out.println("0.Exit");
-        System.out.print("Enter number: ");
-        int option=InPutScanner.SCANNERNUM.nextInt();
-        switch (option){
-            case 1-> showUser();
-            case 2-> blockUser();
-            case 3->activeUser();
+        boolean rec=true;
+        while (rec) {
+            System.out.println("------------------------------------------------");
+            System.out.println("1.Show user");
+            System.out.println("2.User active -> false");
+            System.out.println("3.User active -> true");
+            System.out.println("0.Exit");
+            System.out.print("Enter number: ");
+            int option = InPutScanner.SCANNERNUM.nextInt();
+            switch (option) {
+                case 1 -> showUser();
+                case 2 -> blockUser();
+                case 3 -> activeUser();
+                case 0-> rec=false;
+            }
         }
-
     }
 
     private static void activeUser() {
@@ -279,6 +282,7 @@ public class UserRepository {
                 System.out.println("* Phone: " + user.getPhone());
                 System.out.println("* First name: " + user.getFirst_name());
                 System.out.println("* Last name: " + user.getLast_name());
+                System.out.println("* Role: "+user.getRole());
                 System.out.println("* Active: " + user.isActive());
                 System.out.println("* Password: " + user.getPassword());
                 System.out.println("--------------------------------------------");
@@ -323,6 +327,7 @@ public class UserRepository {
             System.out.println("* Phone: "+user.getPhone());
             System.out.println("* First name: "+user.getFirst_name());
             System.out.println("* Last name: "+user.getLast_name());
+            System.out.println("* Role: "+user.getRole());
             System.out.println("* Active: "+user.isActive());
             System.out.println("* Password: "+user.getPassword());
             System.out.println("--------------------------------------------");
