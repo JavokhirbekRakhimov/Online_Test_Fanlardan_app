@@ -154,6 +154,7 @@ public class QuestionDifficultyrepository {
     public static Response deleteDifficulty() {
         Response response = new Response();
         List<Integer> index = new ArrayList<>();
+        index.add(0);
         int dif_id;
         System.out.println("-------------------------------------------------");
         if (QuestionDifficultyrepository.questionDifficulties.size() > 0) {
@@ -165,10 +166,12 @@ public class QuestionDifficultyrepository {
         } else {
             System.out.println("No question difficulty yet");
         }
-        System.out.println("* Write 0 if you wat back");
-        System.out.println("Enter new question difficulty id");
-        dif_id = InPutScanner.SCANNERNUM.nextInt();
-        System.out.println("-------------------------------------------------");
+
+            System.out.println("* Write 0 if you wat back");
+            System.out.println("Enter new question difficulty id");
+            dif_id = InPutScanner.SCANNERNUM.nextInt();
+            System.out.println("-------------------------------------------------");
+
         if (dif_id != 0) {
             if(index.contains(dif_id)) {
                 return deleteDifficultyById(dif_id);

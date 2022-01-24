@@ -167,10 +167,10 @@ public class Main {
 
     private static void startMenu() {
         System.out.println("________________________________________");
-        System.out.println("1.Log in");
-        System.out.println("2.Log out");
+        System.out.println("1.Sign in");
+        System.out.println("2.Sign up");
         System.out.println("0.Exit");
-        System.out.print("Enter number: ");
+        System.out.print("* Enter number: ");
     }
 
     private static void crudPosition() {

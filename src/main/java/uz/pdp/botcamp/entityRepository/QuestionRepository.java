@@ -440,6 +440,7 @@ public class QuestionRepository {
                 questionForUserList = QuessionForUserRepository.makeQuession(subject_id, quesDif_id);
 
                 List<Integer> idNextQuestion = new ArrayList<>();
+                idNextQuestion.add(0);
                 System.out.println("-----------------------------------------------------------------");
                 for (QuestionForUser questionForUser : questionForUserList) {
                     System.out.println("* Id |=> " + questionForUser.getQuestion_id());
